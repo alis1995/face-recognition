@@ -23,7 +23,7 @@ const ShowWebcam = () => {
       });
     };
     loadModels();
-  }, []);
+  }, [modelsLoaded]);
 
   const startVideo = () => {
     setCaptureVideo(true);
@@ -63,20 +63,38 @@ const ShowWebcam = () => {
           displaySize
         );
 
-        if (canvasRef && canvasRef.current) {
+        canvasRef &&
+          canvasRef.current &&
           canvasRef.current
             .getContext("2d")!
             .clearRect(0, 0, videoWidth, videoHeight);
-
+        canvasRef &&
+          canvasRef.current &&
           faceApi.draw.drawDetections(canvasRef.current, resizedDetections);
-
+        canvasRef &&
+          canvasRef.current &&
           faceApi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
-
+        canvasRef &&
+          canvasRef.current &&
           faceApi.draw.drawFaceExpressions(
             canvasRef.current,
             resizedDetections
           );
-        }
+
+        // if (canvasRef && canvasRef.current) {
+        //   canvasRef.current
+        //     .getContext("2d")!
+        //     .clearRect(0, 0, videoWidth, videoHeight);
+
+        //   faceApi.draw.drawDetections(canvasRef.current, resizedDetections);
+
+        //   faceApi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
+
+        //   faceApi.draw.drawFaceExpressions(
+        //     canvasRef.current,
+        //     resizedDetections
+        //   );
+        // }
       }
     }, 100);
   };
