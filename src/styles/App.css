@@ -1,0 +1,20 @@
+.vd-container{
+    @apply relative h-[85%] justify-center align-middle border-b-4
+}
+
+
+.bt-container{
+    @apply flex h-[15%] justify-end p-1  
+}
+
+
+.bottom{
+    @apply cursor-pointer bg-white border-2 border-gray-400 text-neutral-800 text-[12px] rounded-md p-1
+}
+
+.abs{
+    position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

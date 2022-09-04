@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as faceApi from "face-api.js";
 
 const ShowWebcam = () => {
@@ -6,9 +6,8 @@ const ShowWebcam = () => {
   const [captureVideo, setCaptureVideo] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const videoHeight = 480;
-  const videoWidth = 640;
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const videoHeight = 240;
+  const videoWidth = 320;
 
   useEffect(() => {
     const loadModels = async () => {
@@ -28,7 +27,7 @@ const ShowWebcam = () => {
   const startVideo = () => {
     setCaptureVideo(true);
     navigator.mediaDevices
-      .getUserMedia({ video: { width: 300 } })
+      .getUserMedia({ video: {} })
       .then((stream) => {
         let video: any = videoRef.current; //fix this!! do not use any
         video.srcObject = stream;
@@ -40,19 +39,23 @@ const ShowWebcam = () => {
   };
 
   const handleVideoOnPlay = () => {
-    setInterval(async () => {
-      if (canvasRef && canvasRef.current && videoRef.current && captureVideo) {
-        canvasRef.current = faceApi.createCanvasFromMedia(videoRef.current);
-        const displaySize = {
-          width: videoWidth,
-          height: videoHeight,
-        };
+    if (videoRef.current) {
+      const canvas = faceApi.createCanvas(videoRef.current);
+      const displaySize = {
+        width: videoWidth,
+        height: videoHeight,
+      };
 
-        faceApi.matchDimensions(canvasRef.current, displaySize);
+      canvas.classList.add("abs");
+      canvas.style.zIndex = "1";
 
+      document.getElementById("container")?.append(canvas);
+
+      setInterval(async () => {
+        faceApi.matchDimensions(canvas, displaySize);
         const detections = await faceApi
           .detectAllFaces(
-            videoRef.current,
+            videoRef.current!,
             new faceApi.TinyFaceDetectorOptions()
           )
           .withFaceLandmarks()
@@ -63,40 +66,15 @@ const ShowWebcam = () => {
           displaySize
         );
 
-        canvasRef &&
-          canvasRef.current &&
-          canvasRef.current
-            .getContext("2d")!
-            .clearRect(0, 0, videoWidth, videoHeight);
-        canvasRef &&
-          canvasRef.current &&
-          faceApi.draw.drawDetections(canvasRef.current, resizedDetections);
-        canvasRef &&
-          canvasRef.current &&
-          faceApi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
-        canvasRef &&
-          canvasRef.current &&
-          faceApi.draw.drawFaceExpressions(
-            canvasRef.current,
-            resizedDetections
-          );
+        canvas.getContext("2d")!.clearRect(0, 0, videoWidth, videoHeight);
 
-        // if (canvasRef && canvasRef.current) {
-        //   canvasRef.current
-        //     .getContext("2d")!
-        //     .clearRect(0, 0, videoWidth, videoHeight);
+        faceApi.draw.drawDetections(canvas, resizedDetections);
 
-        //   faceApi.draw.drawDetections(canvasRef.current, resizedDetections);
+        faceApi.draw.drawFaceLandmarks(canvas, resizedDetections);
 
-        //   faceApi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
-
-        //   faceApi.draw.drawFaceExpressions(
-        //     canvasRef.current,
-        //     resizedDetections
-        //   );
-        // }
-      }
-    }, 100);
+        faceApi.draw.drawFaceExpressions(canvas, resizedDetections);
+      }, 100);
+    }
   };
 
   const closeWebcam = () => {
@@ -104,53 +82,40 @@ const ShowWebcam = () => {
       videoRef.current.pause();
       (videoRef.current.srcObject! as MediaStream).getTracks()[0].stop();
     }
+    document.getElementById("container")?.lastChild?.remove();
     setCaptureVideo(false);
   };
 
   return (
-    <div>
-      <div style={{ textAlign: "center", padding: "10px" }}>
-        {captureVideo && modelsLoaded ? (
-          <button
-            onClick={closeWebcam}
-            className="cursor-pointer bg-slate-50 text-neutral-800 text-[25px] rounded-md p-6"
-          >
-            Close Webcam
-          </button>
-        ) : (
-          <button
-            onClick={startVideo}
-            className="cursor-pointer bg-slate-50 text-neutral-800 text-[25px] rounded-md p-6"
-          >
-            Open Webcam
-          </button>
-        )}
-      </div>
+    <div className="absolute w-[50vw] h-[50vh] rounded-lg top-[calc(50%-25vh)] left-[calc(50%-25vw)] bg-white">
       {captureVideo ? (
         modelsLoaded ? (
-          <div className="relative flex items-center justify-center p-10 bg-green-400">
+          <div className="vd-container" id="container">
             <video
               ref={videoRef}
               height={videoHeight}
               width={videoWidth}
               onPlay={handleVideoOnPlay}
-              className="absolute top-0 left-0"
+              className="abs"
             />
-            {captureVideo && (
-              <canvas
-                ref={canvasRef}
-                width={videoWidth}
-                height={videoHeight}
-                className="absolute top-0 left-0 z-10 border-4 border-red-300"
-              />
-            )}
           </div>
         ) : (
           <div>loading...</div>
         )
       ) : (
-        <></>
+        <div className="vd-container"></div>
       )}
+      <div className="bt-container">
+        {captureVideo && modelsLoaded ? (
+          <button onClick={closeWebcam} className="bottom">
+            Close Webcam
+          </button>
+        ) : (
+          <button onClick={startVideo} className="bottom">
+            Open Webcam
+          </button>
+        )}
+      </div>
     </div>
   );
 };
