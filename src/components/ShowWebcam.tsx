@@ -107,9 +107,16 @@ const ShowWebcam = () => {
       )}
       <div className="bt-container">
         {captureVideo && modelsLoaded ? (
-          <button onClick={closeWebcam} className="bottom">
-            Close Webcam
-          </button>
+          <div className="w-[100%] flex">
+            <span className="flex justify-self-stretch flex-1 align-middle">
+              <p className="info">Unknown</p>
+              <p className="info">Unknown</p>
+              <p className="info">Unknown</p>
+            </span>
+            <button onClick={closeWebcam} className="bottom">
+              Close Webcam
+            </button>
+          </div>
         ) : (
           <button onClick={startVideo} className="bottom">
             Open Webcam

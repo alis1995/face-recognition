@@ -12,6 +12,10 @@
     @apply cursor-pointer bg-white border-2 border-gray-400 text-neutral-800 text-[12px] rounded-md p-1
 }
 
+.info{
+    @apply border-solid divide-x-2 divide-black text-[10px] p-1 flex items-center justify-center w-20
+}
+
 .abs{
     position: absolute;
   top: 50%;
